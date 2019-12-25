@@ -1,0 +1,169 @@
+env 显示系统中主要的预定义变量内容	env | more
+set 可以将环境变量和用户自定义的变量显示出来	set | more
+
+#查看目录
+which command	(which who) 
+type -a command
+
+#查看终端设置
+stty -a 
+
+#变量键盘读取
+read [-pt] 变量
+-p	后面可以接提示符
+-t	限制等待时间(s)
+
+#声明变量
+declare/typeset [-airx] 变量	(declare -i sum=1+2+3)
+-a	声明的变量为数组
+-i	整数数字
+-r	变量为只读
+-x	变量变为系统环境变量
+
+export将用户自定义的变量变成系统环境变量 (export sum)
+unset 变量名称	取消变量方法
+
+#别名、取消设置别名
+alias	不加名称则查看系统下所有的别名(alias lm='ls -al | more')
+unalias	取消
+
+#历史命令
+history n 列出最后n个命令(不加n则列出所有)
+history [-crw]
+-c 将当前shell中的历史命令全部清除
+-r 将histfile中内容读取到shell中命令记忆中
+-w 将当前历史记忆内容写入到histfile中
+!number	执行第几个指令
+!command	执行以command的开头的指令(最近的)
+!!	上一个指令的意思
+
+#双向重导向
+tee:将数据流同时输出到屏幕和文件
+tee -a file
+-a	以累加的方式，将数据加入到file中
+
+#命令执行的判断依据
+;	command1 ; command2		利用分号";"来分隔，这个分号的意思，代表不论command1执行结果为何，command2都会被执行
+&&	command1 && command2	如果command1正确才执行command2
+||	command1 || command2	如果command1错误才执行command2
+
+#选取命令
+cut:将一段数据经过分析后，取出我们想要的部分
+grep:通过分析关键字，取得我们想要的行
+
+cut:就是切的意思，这个命令可以将一段信息的某段"切"出来。消息以行为单位
+cut -d "分隔字符" -f fields			(echo $PATH | cut -d ':' -f 4	echo $PATH | cut -d ':' -f 4,6	echo $PATH | cut -d ':' -f 4-6)
+cut -c 字符范围						(export | cut -c 20-30		export | cut -c 20-)
+-d:	后面接分隔符，预设是空格符，与-f一起使用
+-f: 根据-d分隔符将一段消息分为数段，用-f是取出第几段的意思
+-c: 以字符为单位取出固定的字符范围
+
+grep分析一行信息，若将其中有需要的信息，就将这一行信息显示出来
+grep [-acinv] '搜素的字符串' filename
+-a: 将二进制文件以文本文件的方式搜索数据
+-c: 计算找到'搜索字符串'的次数
+-i: 忽略大小写的不同，所有大小写视为相同
+-n: 顺便输出行号
+-v: 反向选择，即显示没有"搜索字符串"的那一行
+
+#
+sort [-fbMnrtuk] [file or stdin]
+-f: 忽略大小写的差异
+-b: 忽略最前面的空格符部分
+-M: 以月份的名字来排序
+-n: 使用【纯数字】排序(默认使用文字类型来排序)
+-r: 反向排序
+-t: 分隔符，默认tab
+-u: 就是uniq，相同数据，只列出一次显示
+-k: 按那个字段(field)来进行排序		-k 3 第三列
+
+#
+uniq [-ic]
+-i: 忽略大小写
+-c: 进行计数
+
+wc [-lwm]
+-l: 仅显示多少行
+-w: 仅显示多少字
+-m: 多少字符
+
+#字符转化命令
+tr可以用来删除一段信息当中的文字，或者是进行文字信息的替换
+tr [-ds] str...
+-d: 删除信息当中的str这个字符串
+-s: 取代掉重复的字符			tr -s ':' '|'
+
+col [-x]
+-x: 将tab键转换成对等的空格键
+
+expand [-t] file
+将tab键转换成8个空格键(无参数)
+-t: 后面接数字n，自定义将[tab]键转换成n个空格键
+
+#联接join [-ti12] file1 file2
+-t: join预设以空格符分隔数据，并且比对【第一个字段】的数据，如果两个档案相同，则将两笔数据联成一行，且第一个字段放在第一个
+-i: 忽略大小写的差异
+-1: 这个是数字的1，代表【第一个档案要用那个字段来分析】的意思
+-2: 代表【第二个档案要用那个字段来分析】的意思			(join -t ':' -1 4(按第四个字段) paaswd -2 3(第三个字段) group | cat -n)
+
+#粘贴
+paste [-d] file1 file2
+-d: 后面可以接分隔符。预设是以[tab]来分隔的
+-: 如果file部分写成-，表示来自standard input的意思			(tail -n 4 /etc/passwd | paste -d '=' group -	-:代表前面tail部分)
+
+#分割
+split [-bl] file PREFIX
+-b: 后面可接欲分割成的档案大小，可加单位，列入b,k,m等
+-l: 以行数来进行分割
+
+#参数代换
+xargs [-epn] command
+-e: 是eof的意思。后面可以接一个字符串，当xargs分析到这个字符串时，就会停止工作
+-p: 在执行每个命令的参数时，都会询问用户的意思
+-n: 后面接次数，每次command命令执行时，要使用几个参数
+当xargs后面没有接任何命令时，默认是echo输出
+
+$# 是传给脚本的参数个数
+$0 是脚本本身的名字
+$1 是传递给该shell脚本的第一个参数
+$2 是传递给该shell脚本的第二个参数
+$@ 是传给脚本的所有参数的列表
+$* 是以一个单字符串显示所有向脚本传递的参数，与位置变量不同，参数可超过9个
+$$ 是脚本运行的当前进程ID号
+$? 是显示上一个命令的执行状态，0表示没有错误，2表示有错误  
+
+#显示时间格式化
+date --date="$1 days ago" "+%Y-%m-%d %H:%M:%S"
+
+#定时任务
+crontab -e #编辑定时器
+	一共6列 分别是 分 时 日 月 周(星期几) 命令
+crontab -l #查看定时器
+
+#if判断
+if [...]
+then
+	....
+elif [...]
+then
+	....
+else
+	....
+fi
+
+#for循环
+#for i in {1..5}
+#for i in {0..10..2}
+#for i in 1 2 3 4 5
+for((i=0; i<10; i++))
+do
+	...
+done
+
+#打开追踪
+set -x
+sh -x xxx.sh
+#关闭追踪
+set +x
+
+
